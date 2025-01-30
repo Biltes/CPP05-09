@@ -1,13 +1,26 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: migupere <migupere@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/28 14:44:52 by migupere          #+#    #+#             */
+/*   Updated: 2025/01/28 14:48:22 by migupere         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "iter.hpp"
 
+template <typename T>
+void print(T const &x)
+{
+	std::cout << x << std::endl;
+}
 int main() {
-	std::string arr[] = { "abc", "def", "ghi", "jkl" };
-	size_t len = sizeof(arr) / sizeof(arr[0]);
-	iter(arr, len, print);
-	std::cout << std::endl;
-
-	int arr2[] = { 0, 1, 2, 3 };
-	size_t l = 4;
-	iter(arr2, l, print);
-	std::cout << std::endl;
+	int tab[] = { 0, 1, 2, 3, 4 };
+	::iter(tab, 5, print);
+	std::string tab2[] = { "Hello", "mr.", "President" };
+	::iter(tab2, 3, print);
+	return 0;
 }

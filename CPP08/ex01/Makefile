@@ -5,14 +5,14 @@
 #                                                     +:+ +:+         +:+      #
 #    By: migupere <migupere@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2025/01/28 14:49:40 by migupere          #+#    #+#              #
-#    Updated: 2025/01/28 15:45:02 by migupere         ###   ########.fr        #
+#    Created: 2025/01/30 14:46:50 by migupere          #+#    #+#              #
+#    Updated: 2025/01/30 17:00:31 by migupere         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME = array
+NAME = span
 
-SRC = main.cpp
+SRC = main.cpp Span.cpp
 OBJ = $(SRC:.cpp=.o)
 
 FLAGS = -Wall -Wextra -Werror -std=c++98

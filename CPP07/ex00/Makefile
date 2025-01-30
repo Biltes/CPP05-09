@@ -1,41 +1,38 @@
-# C++ Flags / Variables
-CPP = c++
-CFLAGS = -Wall -Wextra -Werror -g -std=c++98
-RM = rm -rf
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    Makefile                                           :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: migupere <migupere@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2025/01/28 14:09:39 by migupere          #+#    #+#              #
+#    Updated: 2025/01/28 14:10:33 by migupere         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
 
-# Colors
-RED     = \033[1;31m
-GREEN   = \033[1;32m
-RESET   = \033[0m
+NAME = whatever
 
+SRC = main.cpp 
+OBJ = $(SRC:.cpp=.o)
 
-# Project name
-NAME = fewFuncs
-SRC = main.cpp \
+FLAGS = -Wall -Wextra -Werror -std=c++98
 
-OBJDIR = .bin
-OBJ = $(addprefix $(OBJDIR)/, $(SRC:.cpp=.o))
+CC = c++
 
-# RULES
 all: $(NAME)
 
 $(NAME): $(OBJ)
-		$(CPP) $(CFLAGS) $(OBJ) -o $(NAME)
-		echo "$(GREEN)Build completed. $(RESET)" ;
+	$(CC) $(FLAGS) $(OBJ) -o $(NAME)
 
-$(OBJDIR)/%.o: %.cpp
-		mkdir -p $(@D)
-		$(CPP) $(CFLAGS) -c $< -o $@
+%.o: %.cpp
+	$(CC) $(FLAGS) -c $< -o $@
 
 clean:
-		$(RM) $(OBJ)
+	rm -f $(OBJ)
 
-fclean:
-		$(RM) $(OBJ) $(NAME) $(OBJDIR)
-		echo "$(RED)Cleaned project files/folders. $(RESET)" ;
-
+fclean: clean
+	rm -f $(NAME)
+	
 re: fclean all
-
-.SILENT:
 
 .PHONY: all clean fclean re
