@@ -1,248 +1,153 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   PmergeMe.cpp                                       :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: migupere <migupere@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/03/20 15:28:38 by migupere          #+#    #+#             */
+/*   Updated: 2025/03/27 16:00:13 by migupere         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "PmergeMe.hpp"
 
 PmergeMe::PmergeMe() {}
+PmergeMe::PmergeMe(char **input) {
+	checkInput(input);
+	print(input);
+}
 PmergeMe::PmergeMe(const PmergeMe &other) {*this = other;}
 PmergeMe &PmergeMe::operator=(const PmergeMe &other) {(void)other; return *this;}
 PmergeMe::~PmergeMe() {}
 
-template <typename T> std::string printString(const T &value)
-{
-	std::stringstream ss;
-	ss << value;
-	return (ss.str());
+std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
+    std::vector<size_t> sequence;
+    size_t a = 0, b = 1;
+    while (b < n) {
+        sequence.push_back(b);
+        size_t next = a + 2 * b;
+        a = b;
+        b = next;
+    }
+    return sequence;
 }
 
-void PmergeMe::FordJohnson(int argc, char **argv)
-{
-    std::deque<int> deque;
-    std::list<int> list;
+template <typename T>
+void PmergeMe::mergeSort(T &c, const T &left, const T &right) {
+    c.clear();
+    size_t i = 0, j = 0;
+    while (i < left.size() && j < right.size()) {
+        if (left[i] <= right[j])
+            c.push_back(left[i++]);
+        else
+            c.push_back(right[j++]);
+    }
+    while (i < left.size())
+        c.push_back(left[i++]);
+    while (j < right.size())
+        c.push_back(right[j++]);
+}
 
-    for (int i = 1; i < argc; ++i)
-    {
-        std::string token = argv[i];
-        if (!_validNumber(token))
-        {
-            std::cout << "Invalid expression" << std::endl;
-            return;
+template <typename T>
+void PmergeMe::insertionSort(T &c) {
+    for (size_t i = 1; i < c.size(); ++i) {
+        typename T::value_type key = c[i];
+        int j = i - 1;
+        while (j >= 0 && c[j] > key) {
+            c[j + 1] = c[j];
+            j--;
         }
-        deque.push_back(std::atoi(token.c_str()));
-        list.push_back(std::atoi(token.c_str()));
-    }
-    std::cout << "Before: ";
-    for (std::deque<int>::iterator it = deque.begin(); it != deque.end(); ++it)
-		std::cout << *it << ' ';
-	std::cout << std::endl;
-
-    mergeSortDeque(deque);
-    mergeSortList(list);
-
-    std::cout << std::endl;
-    std::cout << std::fixed << std::setprecision(5);
-    std::cout << "Elapsed time for deque: " << _elapsedDeque << "s" << std::endl;
-    std::cout << "Elapsed time for list: " << _elapsedList << "s" << std::endl;
-}
-
-void PmergeMe::mergeSortDeque(std::deque<int> &array)
-{
-        std::deque<int> mainSet, pendingSet;
-
-        clock_t start = clock();
-        pendingSet = createMainAndPendingSet(mainSet, array);
-
-        insertPendingElements(mainSet, pendingSet);
-        clock_t end = clock();
-        _elapsedDeque = double(end - start) / CLOCKS_PER_SEC;
-        std::cout << "After(deque):  ";
-        for (std::deque<int>::iterator it = mainSet.begin(); it != mainSet.end(); ++it)
-            std::cout << *it << ' ';
-		std::cout << std::endl;
-}
-
-std::deque<int> PmergeMe::createMainAndPendingSet(std::deque<int> &mainSet, std::deque<int> &array)
-{
-    size_t size = array.size();
-    std::deque<int> pendingSet;
-
-    if (size <= 1)
-        return pendingSet;
-
-    for (size_t i = 0; i < size; i += 2) 
-    {
-        if (i + 1 < size) 
-        {
-            int maxVal = std::max(array[i], array[i + 1]);
-            int minVal = std::min(array[i], array[i + 1]);
-
-            std::deque<int>::iterator mainPos = std::upper_bound(mainSet.begin(), mainSet.end(), maxVal);
-            mainSet.insert(mainPos, maxVal);
-
-            std::deque<int>::iterator pendingPos = std::upper_bound(pendingSet.begin(), pendingSet.end(), minVal);
-            pendingSet.insert(pendingPos, minVal);
-        } 
-        else 
-        {
-            std::deque<int>::iterator mainPos = std::upper_bound(mainSet.begin(), mainSet.end(), array[i]);
-            mainSet.insert(mainPos, array[i]);
-        }
-    }
-
-    return pendingSet;
-}
-
-void PmergeMe::insertPendingElements(std::deque<int> &mainSet, std::deque<int> &pendingSet)
-{
-    generateJacobstal(pendingSet.size());
-    insertionIndexWithJacobsthal(pendingSet.size());
-
-    for (std::vector<int>::iterator it = _insertion.begin(); it != _insertion.end(); it++)
-    {
-        int value;
-        std::deque<int>::iterator position;
-
-        value = pendingSet[*it];
-        position = std::upper_bound(mainSet.begin(), mainSet.end(), value);
-        mainSet.insert(position, value);
-    }
-}
-void PmergeMe::mergeSortList(std::list<int> &array)
-{
-    std::list<int> mainSet, pendingSet;
-
-    clock_t start = clock();
-    pendingSet = createMainAndPendingSet(mainSet, array);
-
-    insertPendingElements(mainSet, pendingSet);
-    array = mainSet;
-    clock_t end = clock();
-    _elapsedList = double(end - start) / CLOCKS_PER_SEC;
-    std::cout << "After(list):  ";
-    for (std::list<int>::iterator it = array.begin(); it != array.end(); ++it)
-        std::cout << *it << ' ';
-    std::cout << std::endl;
-}
-
-std::list<int> PmergeMe::createMainAndPendingSet(std::list<int> &mainSet, std::list<int> &array)
-{
-    size_t size = array.size();
-    std::list<int> pendingSet;
-
-    if (size <= 1)
-        return pendingSet;
-
-    std::list<int>::iterator it = array.begin();
-    for (size_t i = 0; i < size; i += 2) 
-    {
-        std::list<int>::iterator next = it;
-        ++next;
-        if (next != array.end()) 
-        {
-            int maxVal = std::max(*it, *next);
-            int minVal = std::min(*it, *next);
-
-            std::list<int>::iterator mainPos = std::upper_bound(mainSet.begin(), mainSet.end(), maxVal);
-            mainSet.insert(mainPos, maxVal);
-
-            std::list<int>::iterator pendingPos = std::upper_bound(pendingSet.begin(), pendingSet.end(), minVal);
-            pendingSet.insert(pendingPos, minVal);
-            ++it;
-        } 
-        else 
-        {
-            std::list<int>::iterator mainPos = std::upper_bound(mainSet.begin(), mainSet.end(), *it);
-            mainSet.insert(mainPos, *it);
-        }
-        ++it;
-    }
-
-    return pendingSet;
-}
-
-void PmergeMe::insertPendingElements(std::list<int> &mainSet, std::list<int> &pendingSet)
-{
-    std::vector<int>::iterator it;
-    for (it = _insertion.begin(); it != _insertion.end(); ++it)
-    {
-        int value;
-        std::list<int>::iterator position;
-
-        if (static_cast<std::list<int>::size_type>(*it) < pendingSet.size()) {
-            value = *advanceIterator(pendingSet.begin(), *it);
-            position = std::upper_bound(mainSet.begin(), mainSet.end(), value);
-            mainSet.insert(position, value);
-        }
+        c[j + 1] = key;
     }
 }
 
-std::list<int>::iterator PmergeMe::advanceIterator(std::list<int>::iterator it, size_t n)
-{
-    while (n-- > 0) {
-        ++it;
+template <typename T>
+void PmergeMe::FordJohnson(T &c) {
+    if (c.size() <= 1)
+        return;
+
+    if (c.size() == 2) {
+        if (c[0] > c[1])
+            std::swap(c[0], c[1]);
+        return;
     }
-    return it;
+
+    if (c.size() <= 16) {
+        insertionSort(c);
+        return;
+    }
+
+    T left(c.begin(), c.begin() + c.size() / 2);
+    T right(c.begin() + c.size() / 2, c.end());
+
+    FordJohnson(left);
+    FordJohnson(right);
+
+    T temp;
+    mergeSort(temp, left, right);
+
+    std::vector<size_t> jacobsthal = generateJacobsthalSequence(temp.size());
+    c.clear();
+
+    for (size_t i = 0; i < jacobsthal.size(); ++i) {
+        if (jacobsthal[i] < temp.size())
+            c.push_back(temp[jacobsthal[i]]);
+    }
+
+    for (size_t i = 0; i < temp.size(); ++i) {
+        if (std::find(jacobsthal.begin(), jacobsthal.end(), i) == jacobsthal.end())
+            c.push_back(temp[i]);
+    }
 }
 
-bool PmergeMe::_validNumber(const std::string &expression)
-{
-    std::istringstream iss(expression);
-    long long l;
-    iss >> std::noskipws >> l;
-    if (iss.eof() && !iss.fail() && l <= __INT_MAX__)
-    {
-        return l > 0;
-    }
-    return false;
-}
-
-void PmergeMe::generateJacobstal(unsigned long n)
-{
-    _jacobsthalNumbers.clear();
-    _jacobsthalNumbers.push_back(0);
-    _jacobsthalNumbers.push_back(1);
-    
-    unsigned long nextNumber = *(_jacobsthalNumbers.rbegin() + 1) * 2 + _jacobsthalNumbers.back();
-
-    while (nextNumber <= n)
-    {
-        _jacobsthalNumbers.push_back(nextNumber);
-        nextNumber = *(_jacobsthalNumbers.rbegin() + 1) * 2 + _jacobsthalNumbers.back();
-    }
-    _jacobsthalNumbers.erase(_jacobsthalNumbers.begin() + 1);
-}
-
-void PmergeMe::insertionIndexWithJacobsthal(unsigned long size)
-{
-    _insertion.push_back(_jacobsthalNumbers.front());
-
-    while (_insertion.size() < size)
-    {
-        _jacobsthalNumbers.erase(_jacobsthalNumbers.begin());
-
-        if (!_jacobsthalNumbers.empty())
-        {
-            int last = _insertion.back();
-            int jacob = _jacobsthalNumbers.front();
-
-            if (jacob > last && jacob < static_cast<int>(size))
-            {
-                _insertion.push_back(jacob--);
-
-                while (jacob > last && _insertion.size() < size)
-                {  
-                    std::vector<int>::iterator it = _insertion.begin();
-                    std::vector<int>::iterator ite = _insertion.end();
-
-                    if (std::find(it, ite, jacob) == ite)
-                        _insertion.push_back(jacob);
-
-                    jacob--;
-                }
+void PmergeMe::checkInput(char **av) {
+    int i = 1;
+    while (av[i]) {
+        std::string str(av[i]);
+        for (size_t j = 0; j < str.size(); j++) {
+            if (!isdigit(str[j])) {
+                throw std::invalid_argument("Invalid input");
             }
         }
-        else
-        {
-            int missing = size - 1;
-            while (_insertion.size() < size && missing > 0)
-                _insertion.push_back(missing--);
-        }
+        long num = std::strtol(str.c_str(), NULL, 10);
+        if (num > std::numeric_limits<int>::max())
+            throw std::invalid_argument("Invalid input");
+        _vec.push_back(num);
+        _deq.push_back(num);
+        i++;
     }
+}
+
+void PmergeMe::print(char **input) {
+    clock_t vecstart = clock();
+    FordJohnson(_vec);
+    clock_t vecend = clock();
+    clock_t deqstart = clock();
+    FordJohnson(_deq);
+    clock_t deqend = clock();
+    double vecduration = (double)(vecend - vecstart) * 1e6 / CLOCKS_PER_SEC;
+    double deqduration = (double)(deqend - deqstart) * 1e6 / CLOCKS_PER_SEC;
+
+    std::cout << "Before : ";
+    for (int i = 1; input[i]; i++) {
+        std::cout << input[i];
+        if (input[i + 1])
+            std::cout << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "After  : ";
+    for (size_t i = 0; i < _vec.size(); i++) {
+        std::cout << _vec[i];
+        if (i + 1 < _vec.size())
+            std::cout << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Time to process a range of " << _vec.size() 
+              << " elements with std::vector : " << vecduration << " µs" << std::endl;
+
+    std::cout << "Time to process a range of " << _deq.size() 
+              << " elements with std::deque  : " << deqduration << " µs" << std::endl;
 }
