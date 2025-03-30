@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.hpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: migupere <migupere@student.42.fr>          +#+  +:+       +#+        */
+/*   By: migupere <migupere@student.42porto.com>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/12 14:56:04 by migupere          #+#    #+#             */
-/*   Updated: 2025/03/27 15:20:19 by migupere         ###   ########.fr       */
+/*   Updated: 2025/03/30 16:15:37 by migupere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,12 +31,7 @@ class PmergeMe
 			std::deque<int> _deq;
 			
 			std::vector<size_t> generateJacobsthalSequence(size_t n);
-		
-			template <typename T>
-			void mergeSort(T &c, const T &left, const T &right);
-		
-			template <typename T>
-			void insertionSort(T &c);
+			std::vector<size_t> expandJacobsthalIndices(size_t n);
 		
 			template <typename T>
 			void FordJohnson(T &c);
