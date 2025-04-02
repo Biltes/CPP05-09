@@ -3,28 +3,35 @@
 /*                                                        :::      ::::::::   */
 /*   PmergeMe.cpp                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: migupere <migupere@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: migupere <migupere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/03/20 15:28:38 by migupere          #+#    #+#             */
-/*   Updated: 2025/03/30 16:15:32 by migupere         ###   ########.fr       */
+/*   Updated: 2025/03/31 14:25:54 by migupere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "PmergeMe.hpp"
 
 PmergeMe::PmergeMe() {}
-PmergeMe::PmergeMe(char **input) {
-	checkInput(input);
-	print(input);
-}
-PmergeMe::PmergeMe(const PmergeMe &other) {*this = other;}
-PmergeMe &PmergeMe::operator=(const PmergeMe &other) {(void)other; return *this;}
+
 PmergeMe::~PmergeMe() {}
+
+PmergeMe::PmergeMe(const PmergeMe& other) {
+    *this = other;
+}
+
+PmergeMe& PmergeMe::operator=(const PmergeMe& other) {
+    if (this != &other) {
+        _vec = other._vec;
+        _deq = other._deq;
+    }
+    return *this;
+}
 
 std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
     std::vector<size_t> sequence;
-    sequence.push_back(0); // Começa com 0 (facilita implementação)
-    sequence.push_back(1); // Segundo número é 1
+    sequence.push_back(0);
+    sequence.push_back(1);
     
     size_t i = 2;
     while (sequence[i-1] < n) {
@@ -37,107 +44,32 @@ std::vector<size_t> PmergeMe::generateJacobsthalSequence(size_t n) {
 
 std::vector<size_t> PmergeMe::expandJacobsthalIndices(size_t n) {
     if (n <= 1) return std::vector<size_t>();
-        
-        std::vector<size_t> jacobsthal = generateJacobsthalSequence(n);
-        std::vector<size_t> indices;
-        std::vector<bool> used(n, false);
-        
-        // Começamos com 1 como o primeiro índice
-        if (n > 0) {
-            indices.push_back(0);
-            used[0] = true;
-        }
-        
-        // Para cada número na sequência de Jacobsthal
-        for (size_t i = 2; i < jacobsthal.size() && jacobsthal[i] < n; ++i) {
-            // Adicionar o índice de Jacobsthal se ainda não usado
-            size_t jIdx = jacobsthal[i];
-            if (jIdx < n && !used[jIdx]) {
-                indices.push_back(jIdx);
-                used[jIdx] = true;
-            }
-            
-            // Adicionar índices intermediários em ordem decrescente
-            for (size_t j = jIdx; j > jacobsthal[i-1]; --j) {
-                if (j < n && !used[j]) {
-                    indices.push_back(j);
-                    used[j] = true;
-                }
-            }
-        }
-        
-        // Adicionar quaisquer índices restantes em ordem
-        for (size_t i = 0; i < n; ++i) {
-            if (!used[i]) {
-                indices.push_back(i);
-            }
-        }
-        
-        return indices;
-}
+    
+    std::vector<size_t> jacobsthal = generateJacobsthalSequence(n);
+    std::vector<size_t> indices;
+    std::vector<bool> used(n, false);
 
-template <typename T>
-void PmergeMe::FordJohnson(T &c) {
-    if (c.size() <= 1) return; // Caso base da recursão
-        
-    // Fase 1: Emparelhar elementos e separar em maiores e menores
-    T mainChain; // Cadeia principal com os maiores de cada par
-    T pend; // Elementos pendentes (menores de cada par)
-    
-    // Elemento solitário (se o tamanho for ímpar)
-    typename T::value_type oddElement;
-    bool hasOddElement = false;
-    
-    if (c.size() % 2 != 0) {
-        hasOddElement = true;
-        oddElement = c[c.size() - 1];
-        c.pop_back();
+    if (n > 1) {
+        indices.push_back(1);
+        used[1] = true;
     }
-    
-    // Formar pares e separar
-    for (size_t i = 0; i < c.size(); i += 2) {
-        if (c[i] > c[i + 1]) {
-            mainChain.push_back(c[i]);
-            pend.push_back(c[i + 1]);
-        } else {
-            mainChain.push_back(c[i + 1]);
-            pend.push_back(c[i]);
-        }
-    }
-    
-    // Fase 2: Ordenar recursivamente a cadeia principal
-    FordJohnson(mainChain);
-    
-    // Fase 3: Reconstrói c com a cadeia principal ordenada
-    c.clear();
-    c = mainChain;
-    
-    // Fase 4: Inserir os elementos pendentes
-    // Primeiro elemento (sempre o primeiro pendente)
-    if (!pend.empty()) {
-        typename T::iterator pos = std::lower_bound(c.begin(), c.end(), pend[0]);
-        c.insert(pos, pend[0]);
-    }
-    
-    // Calcular ordem de inserção baseada na sequência de Jacobsthal
-    if (pend.size() > 1) {
-        std::vector<size_t> insertOrder = expandJacobsthalIndices(pend.size());
-        
-        // Começar do segundo índice pois o primeiro já foi inserido
-        for (size_t i = 1; i < insertOrder.size(); ++i) {
-            size_t idx = insertOrder[i];
-            if (idx < pend.size()) {
-                typename T::iterator pos = std::lower_bound(c.begin(), c.end(), pend[idx]);
-                c.insert(pos, pend[idx]);
+
+    for (size_t i = 2; i < jacobsthal.size() && jacobsthal[i] <= n; ++i) {
+        for (size_t j = jacobsthal[i] < n ? jacobsthal[i] : n; j > jacobsthal[i-1]; --j) {
+            if (j < n && !used[j]) {
+                indices.push_back(j);
+                used[j] = true;
             }
         }
     }
-    
-    // Inserir o elemento solitário, se existir
-    if (hasOddElement) {
-        typename T::iterator pos = std::lower_bound(c.begin(), c.end(), oddElement);
-        c.insert(pos, oddElement);
+
+    for (size_t i = 1; i < n; ++i) {
+        if (!used[i]) {
+            indices.push_back(i);
+        }
     }
+    
+    return indices;
 }
 
 void PmergeMe::checkInput(char **av) {
@@ -194,4 +126,3 @@ void PmergeMe::print(char **input) {
     std::cout << "Time to process a range of " << _deq.size()
         << " elements with std::deque : " << deqduration << " us" << std::endl;
 }
-
