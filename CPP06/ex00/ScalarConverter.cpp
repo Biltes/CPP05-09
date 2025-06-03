@@ -3,25 +3,24 @@
 /*                                                        :::      ::::::::   */
 /*   ScalarConverter.cpp                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: migupere <migupere@student.42porto.com>    +#+  +:+       +#+        */
+/*   By: migupere <migupere@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 15:01:10 by migupere          #+#    #+#             */
-/*   Updated: 2025/01/17 16:36:52 by migupere         ###   ########.fr       */
+/*   Updated: 2025/01/22 16:41:08 by migupere         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ScalarConverter.hpp"
 
-// Prevent instantiation
 ScalarConverter::ScalarConverter() {}
 ScalarConverter::ScalarConverter(const ScalarConverter& other) { (void)other; }
 ScalarConverter& ScalarConverter::operator=(const ScalarConverter& other) {
     (void)other;
     return *this;
 }
+ScalarConverter::~ScalarConverter() {}
 
 void ScalarConverter::convert(const std::string& literal) {
-    // Handle special cases first
     if (literal == "nan" || literal == "nanf") {
         std::cout << "char: impossible" << std::endl;
         std::cout << "int: impossible" << std::endl;
@@ -38,20 +37,20 @@ void ScalarConverter::convert(const std::string& literal) {
         std::cout << "double: " << (literal[0] == '-' ? "-" : "+") << "inf" << std::endl;
         return;
     }
-
-    // Check for char literal (single character in quotes)
    if (isChar(literal) || (literal.length() == 1 && !std::isdigit(literal[0]))) {
         char value = isChar(literal) ? literal[1] : literal[0];
         convertFromChar(value);
         return;
    }
 
-    // Try to convert to different types
     try {
         if (isInt(literal)) {
-            int value = std::atoi(literal.c_str());
-            convertFromInt(value);
-        }
+			long value = std::strtol(literal.c_str(), NULL, 10);
+            if (value >= std::numeric_limits<int>::min() && value <= std::numeric_limits<int>::max())
+            	convertFromInt(value);
+			else
+				convertFromDouble(static_cast<double>(value));
+		}
         else if (isFloat(literal)) {
             float value = static_cast<float>(std::atof(literal.c_str()));
             convertFromFloat(value);
@@ -92,11 +91,11 @@ bool ScalarConverter::isFloat(const std::string& literal) {
     if (literal.empty())
         return false;
         
-    // Check if it ends with 'f'
+
     if (literal[literal.length() - 1] != 'f')
         return false;
         
-    // Remove the 'f' and check if it's a valid floating point number
+
     std::string temp = literal.substr(0, literal.length() - 1);
     
     size_t i = 0;
@@ -203,7 +202,6 @@ void ScalarConverter::printFloat(double value) {
     }
     else {
         std::cout << "float: " << static_cast<float>(value);
-        // Check if the value is a whole number
         if (value == static_cast<int>(value))
             std::cout << ".0";
         std::cout << "f" << std::endl;
@@ -212,7 +210,6 @@ void ScalarConverter::printFloat(double value) {
 
 void ScalarConverter::printDouble(double value) {
      std::cout << "double: " << value;
-    // Check if the value is a whole number
     if (value == static_cast<int>(value))
         std::cout << ".0";
     std::cout << std::endl;
